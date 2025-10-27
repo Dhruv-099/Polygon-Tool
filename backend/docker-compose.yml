@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgis/postgis:15-3.3
+    container_name: polygon_db
+    environment:
+      - POSTGRES_DB=polygondb
+      - POSTGRES_USER=dhruvbobal
+      - POSTGRES_PASSWORD=psh11989
+    ports:
+      - "5433:5432"  # host:container
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DB_NAME=polygondb
+      - DB_USER=dhruvbobal
+      - DB_PASSWORD=psh11989
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DEBUG=1
+      - DJANGO_ALLOWED_HOSTS=*
+
+volumes:
+  pg_data:

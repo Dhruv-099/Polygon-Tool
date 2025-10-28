@@ -5,7 +5,7 @@
 /.env.production.local
 !/.env.example
 !/.env.sample
-
+/backend/.env
 
 /.venv/
 /venv/

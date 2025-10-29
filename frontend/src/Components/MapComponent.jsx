@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
-import { GoogleMap, useJsApiLoader, DrawingManager } from '@react-google-maps/api';
+import React, { useState, useCallback, useEffect, useRef, use } from 'react';
+import { GoogleMap, useJsApiLoader, DrawingManager, Polygon } from '@react-google-maps/api';
 import * as turf from '@turf/turf';
 import MetricsDisplay from './MetricsDisplay';
 const libraries = ['drawing'];
@@ -16,7 +16,7 @@ const center = {
     lng: 78.9629
 };
 
-function MapComponent() {
+function MapComponent({polygonToDisplay}) {
     const { isLoaded, loadError } = useJsApiLoader({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
         libraries
@@ -80,6 +80,38 @@ function MapComponent() {
     // polygon.setMap(null); // Remove the drawn polygon from the map
     
     
+    useEffect(() => {
+        if (!map) return;
+        if (displayedPolygonRef.current) { // clears prev polygon
+            displayedPolygonRef.current.setMap(null);
+        }
+        if (polygonToDisplay){ //if new polygon draw it 
+            const paths = polygonToDisplay.geometry.coordinates[0].map(
+        (coords) => ({ lat: coords[1], lng: coords[0] })
+        );
+
+      // Create a new Google Maps Polygon object
+        const newPolygon = new window.google.maps.Polygon({
+        paths: paths,
+        strokeColor: "#0000FF", // Blue for displayed polygons
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: "#0000FF",
+        fillOpacity: 0.35,
+        });
+
+        newPolygon.setMap(map);
+        displayedPolygonRef.current = newPolygon;
+
+      // Center and zoom the map to fit the new polygon
+        const bounds = new window.google.maps.LatLngBounds();
+        paths.forEach((path) => bounds.extend(path));
+        map.fitBounds(bounds);
+    }
+
+    }, [polygonToDisplay, map]);
+
+
     if (loadError) return <div>Error loading maps</div>;
     if (!isLoaded) return <div>Loading Maps</div>;
     
@@ -127,4 +159,4 @@ function MapComponent() {
     )
 }
 
-export default MapComponent
+export default MapComponent;

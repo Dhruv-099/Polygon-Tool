@@ -11,17 +11,17 @@ class PolygonSerializer(GeoFeatureModelSerializer):
             "area",
             "perimeter",
             "address",
-            "pin_code",
-            "nearest_forest_name",
-            "nearest_forest_distance",
+            "google_pin_code",
+            "nearest_forest_area",
             "created_at",
             "updated_at",
         )
         read_only_fields = (
+            "area",
+            "perimeter",
             "address",
-            "pin_code",
-            "nearest_forest_name",
-            "nearest_forest_distance",
+            "google_pin_code",
+            "nearest_forest_area",
             "created_at",
             "updated_at",
         )

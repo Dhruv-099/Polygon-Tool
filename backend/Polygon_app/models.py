@@ -23,20 +23,12 @@ class Polygons(gis_models.Model):
         return f"Polygon {self.id} - {self.address or 'No Address'}"
     
     def _calculate_area_and_perimeter(self):
-        updated_fields=[]
-        if self.geom and (self.area is None or self.perimeter is None):
-                transformed_geom = self.geom.transform(3857, clone=True)
-                new_area=round(transformed_geom.area,3)  # in square meters
-                new_perimeter=round(transformed_geom.length,3)  # in meters
-                if self.area != new_area:
-                    self.area=new_area
-                    updated_fields.append('area')
-                if self.perimeter != new_perimeter:
-                    self.perimeter=new_perimeter
-                    updated_fields.append('perimeter')
-        return updated_fields
+        if self.geom:
+            transformed_geom = self.geom.transform(3857, clone=True)
+            self.area = round(transformed_geom.area,3)  # in square meters
+            self.perimeter = round(transformed_geom.length,3)  # in meters
+
     def _perform_geocoding(self):#find pincode if not already set
-        updated_fields=[]
         if self.geom and not self.address and GOOGLE_GEOCODING_API_KEY:
             centroid = self.geom.centroid
             url = (
@@ -48,25 +40,18 @@ class Polygons(gis_models.Model):
             data=response.json()
             if data['status']=='OK' and data['results']:
                 result=data['results'][0]
-                formatted_address=result['formatted_address']
-                self.address=formatted_address
-                updated_fields.append('address')
+                self.address=result['formatted_address']
                 for component in result.get('address_components', []):
                     if 'postal_code' in component['types']:
                         self.google_pin_code=component['long_name']
-                        updated_fields.append('google_pin_code')
                         break
-        return updated_fields
         
     
     def save(self, *args, **kwargs):
-        if self._state.adding:
-            super().save(*args, **kwargs)#obj gets id and is saved
-        updated_fields=[]
-        updated_fields.extend(self._calculate_area_and_perimeter())
-        updated_fields.extend(self._perform_geocoding())
-        if updated_fields and self._state.adding:
-            unique_updated_fields=list(set(updated_fields))
-            super().save(update_fields=unique_updated_fields,*args, **kwargs)
-        if not self._state.adding and not updated_fields:
+        self._calculate_area_and_perimeter()
+        self._perform_geocoding()
+        # Override to avoid saving initial empty values for created_at if it gets overridden
+        if self._state.adding and not hasattr(self, 'created_at'):
+            super().save(update_fields=['created_at', 'updated_at'] if 'update_fields' not in kwargs else kwargs['update_fields'], *args, **kwargs)
+        else:
             super().save(*args, **kwargs)

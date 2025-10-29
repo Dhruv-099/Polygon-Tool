@@ -1,42 +1,52 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+.app-container {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  width: 100vw;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.sidebar {
+  width: 350px;
+  padding: 1rem;
+  overflow-y: auto;
+  border-right: 1px solid #ccc;
+  background-color: #f9f9f9;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.map-area {
+  flex-grow: 1;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* Styles for components we've already made */
+.metrics-container, .save-container {
+  padding: 10px;
+  background-color: white;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 10;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 
-.card {
-  padding: 2em;
+.save-container {
+  top: 150px;
 }
 
-.read-the-docs {
-  color: #888;
+/* Styles for PolygonList */
+.polygon-list-container ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.polygon-list-item {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: white;
+}
+
+.polygon-list-item p {
+  margin: 5px 0;
 }
